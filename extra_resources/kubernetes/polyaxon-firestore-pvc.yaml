@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: polyaxon-filestore-pvc-repos
+  namespace: polyaxon
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  resources:
+    requests:
+      storage: 1T
+  selector:
+    matchLabels:
+      name: polyaxon-repos
