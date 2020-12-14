@@ -1,0 +1,47 @@
+defaults: &defaults
+  working_directory: /home/circleci/project
+
+prepare-dotenv-step:  &prepare-dotenv-step
+  name: Prepare .env
+  command: |
+    touch .env
+    echo GITHUB_TOKEN="${GITHUB_TOKEN}" >> .env
+    echo CIRCLE_SHA1="${CIRCLE_SHA1}" >> .env
+    echo CIRCLE_BUILD_URL="${CIRCLE_BUILD_URL}" >> .env
+    echo CIRCLE_PULL_REQUEST="${CIRCLE_PULL_REQUEST}" >> .env
+    echo CI_PULL_REQUEST="${CI_PULL_REQUEST}" >> .env
+    echo CIRCLE_PR_NUMBER="${CIRCLE_PR_NUMBER}" >> .env
+
+prepare-github-token-step: &prepare-github-token-step
+  name: Set credentials with ${GITHUB_TOKEN} from CI's context
+  command: |
+    echo "machine github.com login ${GITHUB_TOKEN}" > ~/.netrc
+    rm -f ~/.gitconfig
+
+version: 2
+jobs:
+  fmt:
+    docker:
+      - image: hashicorp/terraform:0.12.17
+    <<: *defaults
+    steps:
+      - checkout
+      - run:
+          <<: *prepare-dotenv-step
+      - run:
+          <<: *prepare-github-token-step
+      - run:
+          name: Run terraform fmt
+          command: |
+            pwd
+            terraform fmt -diff=true -check=true .
+
+workflows:
+  version: 2
+  terraform:
+    jobs:
+      - fmt:
+          context: org-global
+          filters:
+            branches:
+              ignore: master

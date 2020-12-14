@@ -1,0 +1,43 @@
+# Node pools for polyaxon experiments
+- GCP project ID: ${gcp_project}
+- GKE location: ${gke_location}
+- Disk type of a node for polyaxon experiments: ${disk_type_experiments}
+- Disk size of a node for polyaxon experiments: ${disk_size_gb_experiments} GB
+
+## Regular CPU node types
+All regular node pools with only CPU have the label which is `polyaxon: experiments`.
+GKE automatically uses appropriate nodes based on requested resources.
+
+|node pool name|machine type|min node count|max node count|
+|--------------|------------|--------------|--------------|
+%{ for i in range(0, length(regular_cpu_node_pools.names)) ~}
+|${regular_cpu_node_pools.names[i]} | ${regular_cpu_node_pools.machine_types[i]} |${regular_cpu_node_pools.min_node_counts[i]} | ${regular_cpu_node_pools.max_node_counts[i]} |
+%{ endfor }
+
+## Preemptible CPU node pools
+All preemptible node pools with only CPU have the label which is `polyaxon: experiments-preemptible`.
+GKE automatically uses appropriate nodes based on requested resources.
+
+|node pool name|machine type|min node count|max node count|
+|--------------|------------|--------------|--------------|
+%{ for i in range(0, length(preemptible_cpu_node_pools.names)) ~}
+|${preemptible_cpu_node_pools.names[i]} | ${preemptible_cpu_node_pools.machine_types[i]} |${preemptible_cpu_node_pools.min_node_counts[i]} | ${preemptible_cpu_node_pools.max_node_counts[i]} |
+%{ endfor }
+
+## Regular GPU node pools
+The label columns are used for selecting node with `environment.node_selector` of polyaxon configuration.
+
+|node pool name |label |machine type |accelerator type |# accelerators |min node count |max node count |
+|---------------|------|-------------|-----------------|---------------|---------------|---------------|
+%{ for i in range(0, length(regular_gpu_node_pools.names)) ~}
+|${regular_gpu_node_pools.names[i]} |`polyaxon: ${regular_gpu_node_pools.labels[i].polyaxon}` |${regular_gpu_node_pools.machine_types[i]} | ${regular_gpu_node_pools.accelerator_types[i]} | ${regular_gpu_node_pools.accelerator_counts[i]} |${regular_gpu_node_pools.min_node_counts[i]} |${regular_gpu_node_pools.max_node_counts[i]} |
+%{ endfor }
+
+## Preemptible GPU node pools
+The label columns are used for selecting node with `environment.node_selector` of polyaxon configuration.
+
+|node pool name |label |machine type |accelerator type |# accelerators |min node count |max node count |
+|---------------|------|-------------|-----------------|---------------|---------------|---------------|
+%{ for i in range(0, length(preemptible_gpu_node_pools.names)) ~}
+|${preemptible_gpu_node_pools.names[i]} |`polyaxon: ${preemptible_gpu_node_pools.labels[i].polyaxon}` |${preemptible_gpu_node_pools.machine_types[i]} | ${preemptible_gpu_node_pools.accelerator_types[i]} | ${preemptible_gpu_node_pools.accelerator_counts[i]} |${preemptible_gpu_node_pools.min_node_counts[i]} |${preemptible_gpu_node_pools.max_node_counts[i]} |
+%{ endfor }

@@ -1,0 +1,73 @@
+rbac:
+  enabled: true
+
+ingress:
+  enabled: false
+
+serviceType: ClusterIP
+
+nodeSelector:
+  polyaxon: core
+
+adminViewEnabled: true
+
+persistence:
+  logs:
+    store: gcs
+    bucket: gs://${bucket_logs}
+    secret: gcs-secret
+    secretKey: account.json
+
+  repos:
+    existingClaim: polyaxon-filestore-pvc-repos
+
+  data:
+    data-gcs:
+      store: gcs
+      bucket: gs://${bucket_data}
+      secret: gcs-secret
+      secretKey: account.json
+  outputs:
+    output-gcs:
+      store: gcs
+      bucket: gs://${bucket_outputs}
+      secret: gcs-secret
+      secretKey: account.json
+
+docker-registry:
+  enabled: true
+  nodeSelector:
+    polyaxon: core
+
+postgresql:
+  enabled: false
+
+ %{ if memorystore_host != null }
+ redis:
+   enabled: false
+ %{ endif }
+
+externalServices:
+  postgresql:
+    user: polyaxon
+    password: polyaxon
+    database: polyaxon
+    host: ${postgressql_host}
+    port: 5432
+
+ %{ if memorystore_host != null }
+   redis:
+     host: "${memorystore_host}"
+ %{ endif }
+
+# Services Replication
+api:
+  replicas: 3
+scheduler:
+  replicas: 3
+hpsearch:
+  replicas: 3
+eventsHandlers:
+  replicas: 3
+eventMonitors:
+  replicas: 3
